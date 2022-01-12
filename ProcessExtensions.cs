@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Spectre.Console;
 
 namespace Perfy
 {
@@ -8,32 +7,23 @@ namespace Perfy
         private static Dictionary<string, Func<Process, long>> Map = new Dictionary<string, Func<Process, long>>{
             { "Thread Count", p => p.Threads.Count },
             { "OS Handles", p => p.HandleCount },
-            { "Peak Paged Memory", p => p.PeakPagedMemorySize64 },
-            { "Current Paged Memory", p => p.PagedMemorySize64 },
-            { "Peak Virtual Memory", p => p.PeakVirtualMemorySize64 },
-            { "Current Virtual Memory", p => p.VirtualMemorySize64 },
-            { "Current Total Memory", p => p.WorkingSet64 }
+            { "Current Memory Used", p => (p.PrivateMemorySize64 / 1024) / 1024 },
         };
 
-
-        //Im too lazy to think of a color for each of them
-        private static Color RandomColor()
+        public static List<Data> GetProcessData(this Process process)
         {
-            return (Color)Enum.GetValues(typeof(Color))
-                .OfType<Enum>()
-                .OrderBy(x => Guid.NewGuid())
-                .First();
+            var ret = new List<Data>();
+            return Map.Select(x => new Data(x.Key, x.Value(process))).ToList();
         }
 
-        public static List<ClrValue> InitProcessBars(this Process process)
+        public static void UpdateProcessData(this Process process, List<Data> list)
         {
-            var ret = new List<ClrValue>();
-            return Map.Select(x => new ClrValue(x.Key, RandomColor(), x.Value(process))).ToList();
-        }
-
-        public static void UpdateProcessBars(this Process process, List<ClrValue> list)
-        {
+            process.Refresh();
             list.ForEach(x => x.Update(Map[x.Label](process)));
         }
+
+        public static string GetDisplayTitle(this Process process) => $"{process.ProcessName}:{process.Id}";
+
+
     }
 }
