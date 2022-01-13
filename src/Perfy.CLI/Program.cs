@@ -1,2 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+using McMaster.Extensions.CommandLineUtils;
+using Perfy.CLI;
+
+var app = new CommandLineApplication();
+app.InitArgs();
+app.Execute(args);

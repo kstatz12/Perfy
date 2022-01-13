@@ -10,7 +10,7 @@ using Perfy.Misc;
 
 namespace Perfy.Processes;
 
-public class EventHandler : IDisposable
+public class Engine : IDisposable
 {
     private readonly Process process;
     private IDisposable session;
@@ -18,7 +18,7 @@ public class EventHandler : IDisposable
     private readonly Cache data;
     private readonly IWriter writer;
 
-    public EventHandler(IWriter writer, Func<Process> processResolverFn)
+    public Engine(IWriter writer, Func<Process> processResolverFn)
     {
         this.process = processResolverFn();
         var (session, dispatcher) = InititializeProviders(this.process.Id);
@@ -84,7 +84,7 @@ public class EventHandler : IDisposable
                     {
                         data.Handle(e);
                     }
-                }
+                };
             });
         });
 
