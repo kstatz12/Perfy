@@ -26,7 +26,7 @@ public class EventHandler : IDisposable
         this.dispatcher = dispatcher;
         this.data = new Cache();
         this.writer = writer;
-        ConfigureCallbacks(dispatcher, this.process.Id);
+        ConfigureCallbacks(dispatcher, this.process.Id, this.data);
     }
 
     public void Dispose()
@@ -78,9 +78,14 @@ public class EventHandler : IDisposable
                         data.Handle(e);
                     }
                 };
+
+                runtime.JITMethodEnd += (p, e) => {
+                    if(p.ProcessID == processId)
+                    {
+                        data.Handle(e);
+                    }
+                }
             });
-
-
         });
 
         dispatcher.Clr.ContentionStop += e => {
