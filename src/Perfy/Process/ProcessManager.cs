@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Perfy;
+namespace Perfy.Processes;
 
 public static class ProcessManager
 {
