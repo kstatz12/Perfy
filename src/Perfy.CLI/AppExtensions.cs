@@ -10,21 +10,26 @@ public static class AppExtensions
     {
         var processName = app.Option("-n|--name", "Process Name", CommandOptionType.SingleValue);
         var processId = app.Option("-pid|--processid", "Process Id", CommandOptionType.SingleValue);
+        var network = app.Option("-nt|--network", "Network address of machine running the process", CommandOptionType.SingleValue);
         app.HelpOption();
 
         app.OnExecute(() => {
-            using var ev = new Engine(new SpectreWriter(), () => {
+            var ev = new Engine(new SpectreWriter(), () => {
                 Process? p = null;
                 if(processName.HasValue())
                 {
-                    p = ProcessManager.GetProcess(processName.Value() ?? string.Empty);
+                    p = Process.GetProcessesByName(processName.Value()).FirstOrDefault();
                 }
                 else if(processId.HasValue())
                 {
                     if(int.TryParse(processId.Value(), out var pid))
                     {
-                        p = ProcessManager.GetProcess(pid) ;
+                        p = Process.GetProcessById(pid);
                     }
+                }
+                else
+                {
+                   throw new Exception("Invalid Parameters");
                 }
                 if(p == null)
                 {
@@ -32,6 +37,10 @@ public static class AppExtensions
                 }
                 return p;
             });
+
+            ev.Start();
+
+            ev.Dispose();
         });
     }
 }

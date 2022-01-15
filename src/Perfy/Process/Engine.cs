@@ -17,6 +17,7 @@ public class Engine : IDisposable
     private TraceEventDispatcher dispatcher;
     private readonly Cache data;
     private readonly IWriter writer;
+    private bool sessionDisposed = false;
 
     public Engine(IWriter writer, Func<Process> processResolverFn)
     {
@@ -27,13 +28,21 @@ public class Engine : IDisposable
         this.data = new Cache();
         this.writer = writer;
         ConfigureCallbacks(dispatcher, this.process.Id, this.data);
+        var inputThread = new Thread(() => ConfigureShutdownHooks(session));
+        if(!Console.IsInputRedirected)
+        {
+            inputThread.Start();
+        }
     }
 
     public void Dispose()
     {
         this.process.Dispose();
-        this.session.Dispose();
         this.dispatcher.Dispose();
+        if(!sessionDisposed)
+        {
+            this.session.Dispose();
+        }
     }
 
     public void Start()
@@ -44,7 +53,9 @@ public class Engine : IDisposable
 
     public void Stop()
     {
+        Console.WriteLine("Stopping");
         this.session.Dispose();
+        this.sessionDisposed = true;
         this.writer.Write(this.data);
     }
 
@@ -52,18 +63,13 @@ public class Engine : IDisposable
     protected virtual void ConfigureShutdownHooks(IDisposable session)
     {
         Console.CancelKeyPress += (e, a) => {
-           session.Dispose();
-           Environment.Exit(0);
+            Stop();
         };
 
-        if(!Console.IsInputRedirected)
+        var key = Console.ReadKey(true);
+        while(key.Key == ConsoleKey.Enter)
         {
-            var key = Console.ReadKey(true);
-            while(key.Key == ConsoleKey.Enter)
-            {
-                Stop();
-                Console.ReadKey(true);
-            }
+            Stop();
         }
     }
 

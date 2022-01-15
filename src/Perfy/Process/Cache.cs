@@ -8,8 +8,6 @@ public class Cache
 {
     public List<TraceGC> GCEvents { get; }
     public List<TraceJittedMethod> JITEvents { get; }
-    public TraceJittedMethod? CurrentJIT { get; private set; }
-    public TraceGC? CurrentGC { get; private set; }
     public List<ContentionStopTraceData> ContentionEvents { get; }
 
     public Cache()
@@ -17,17 +15,11 @@ public class Cache
         GCEvents = new List<TraceGC>();
         JITEvents = new List<TraceJittedMethod>();
         ContentionEvents = new List<ContentionStopTraceData>();
-        CurrentGC = null;
-        CurrentJIT = null;
     }
 
     public void Handle(TraceGC newGc)
     {
-        if(CurrentGC != null)
-        {
-            GCEvents.Add(CurrentGC);
-        }
-        CurrentGC = newGc;
+        GCEvents.Add(newGc);
     }
 
     public void Handle(ContentionStopTraceData @event)
@@ -37,10 +29,6 @@ public class Cache
 
     public void Handle(TraceJittedMethod newJIT)
     {
-        if(CurrentJIT != null)
-        {
-            JITEvents.Add(CurrentJIT);
-        }
-        CurrentJIT = newJIT;
+        JITEvents.Add(newJIT);
     }
 }
