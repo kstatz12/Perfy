@@ -1,5 +1,4 @@
 using Microsoft.Diagnostics.Tracing.Analysis.GC;
-using Microsoft.Diagnostics.Tracing.Analysis.JIT;
 using Microsoft.Diagnostics.Tracing.Parsers.Clr;
 
 namespace Perfy.Processes;
@@ -7,13 +6,11 @@ namespace Perfy.Processes;
 public class Cache
 {
     public List<TraceGC> GCEvents { get; }
-    public List<TraceJittedMethod> JITEvents { get; }
     public List<ContentionStopTraceData> ContentionEvents { get; }
 
     public Cache()
     {
         GCEvents = new List<TraceGC>();
-        JITEvents = new List<TraceJittedMethod>();
         ContentionEvents = new List<ContentionStopTraceData>();
     }
 
@@ -26,9 +23,14 @@ public class Cache
     {
         ContentionEvents.Add(@event);
     }
+}
 
-    public void Handle(TraceJittedMethod newJIT)
-    {
-        JITEvents.Add(newJIT);
-    }
+public class Stats
+{
+    public int GcCount { get; private set; }
+    public int AverageGcTime { get; private set; }
+    public int TotalGCTime { get; private set; }
+    public int ThreadContentionCount { get; private set; }
+    public int AverageContentionTime { get; private set; }
+    public int TotalContentionTime { get; private set; }
 }

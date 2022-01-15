@@ -10,16 +10,16 @@ using Perfy.Misc;
 
 namespace Perfy.Processes;
 
-public class Engine : IDisposable
+public class Engine
 {
     private readonly Process process;
     private IDisposable session;
     private TraceEventDispatcher dispatcher;
     private readonly Cache data;
     private readonly IWriter writer;
-    private bool sessionDisposed = false;
+    private readonly int sampleTime;
 
-    public Engine(IWriter writer, Func<Process> processResolverFn)
+    public Engine(IWriter writer, int sampleTime, Func<Process> processResolverFn)
     {
         this.process = processResolverFn();
         var (session, dispatcher) = InititializeProviders(this.process.Id);
@@ -27,50 +27,24 @@ public class Engine : IDisposable
         this.dispatcher = dispatcher;
         this.data = new Cache();
         this.writer = writer;
+        this.sampleTime = sampleTime;
         ConfigureCallbacks(dispatcher, this.process.Id, this.data);
-        var inputThread = new Thread(() => ConfigureShutdownHooks(session));
-        if(!Console.IsInputRedirected)
-        {
-            inputThread.Start();
-        }
-    }
 
-    public void Dispose()
-    {
-        this.process.Dispose();
-        this.dispatcher.Dispose();
-        if(!sessionDisposed)
-        {
-            this.session.Dispose();
-        }
+        TimerCallback timerCallback = _ => {
+            this.writer.Write(this.data);
+        };
+
+        Console.CancelKeyPress += (_, _) => {
+            this.session?.Dispose();
+        };
+
+        Timer timer = new Timer(callback: timerCallback, dueTime: 0, state: null, period: sampleTime);
     }
 
     public void Start()
     {
+        this.writer.WriteStart(this.process);
         this.dispatcher.Process();
-    }
-
-
-    public void Stop()
-    {
-        Console.WriteLine("Stopping");
-        this.session.Dispose();
-        this.sessionDisposed = true;
-        this.writer.Write(this.data);
-    }
-
-
-    protected virtual void ConfigureShutdownHooks(IDisposable session)
-    {
-        Console.CancelKeyPress += (e, a) => {
-            Stop();
-        };
-
-        var key = Console.ReadKey(true);
-        while(key.Key == ConsoleKey.Enter)
-        {
-            Stop();
-        }
     }
 
     private static void ConfigureCallbacks(TraceEventDispatcher dispatcher, int processId, Cache data)
@@ -79,13 +53,6 @@ public class Engine : IDisposable
         dispatcher.AddCallbackOnProcessStart(proc => {
             proc.AddCallbackOnDotNetRuntimeLoad(runtime => {
                 runtime.GCEnd += (p, e) => {
-                    if(p.ProcessID == processId)
-                    {
-                        data.Handle(e);
-                    }
-                };
-
-                runtime.JITMethodEnd += (p, e) => {
                     if(p.ProcessID == processId)
                     {
                         data.Handle(e);
@@ -109,17 +76,14 @@ public class Engine : IDisposable
             var traceEventSession = new TraceEventSession($"PerfySession_{Guid.NewGuid()}");
             traceEventSession.EnableProvider(ClrTraceEventParser.ProviderGuid, TraceEventLevel.Informational, (ulong)ClrTraceEventParser.Keywords.GC);
             traceEventSession.EnableProvider(ClrTraceEventParser.ProviderGuid, TraceEventLevel.Informational, (ulong)ClrTraceEventParser.Keywords.Contention);
-            traceEventSession.EnableProvider(ClrTraceEventParser.ProviderGuid, TraceEventLevel.Informational, (ulong)ClrTraceEventParser.Keywords.Threading);
             return (traceEventSession, traceEventSession.Source);
         }
         var providers = new List<EventPipeProvider>();
         providers.Add(new EventPipeProvider("Microsoft-Windows-DotNETRuntime", EventLevel.Informational, (long)ClrTraceEventParser.Keywords.GC));
         providers.Add(new EventPipeProvider("Microsoft-Windows-DotNETRuntime", EventLevel.Informational, (long)ClrTraceEventParser.Keywords.Contention));
-        providers.Add(new EventPipeProvider("Microsoft-Windows-DotNETRuntime", EventLevel.Informational, (long)ClrTraceEventParser.Keywords.Threading));
 
         var client = new DiagnosticsClient(processId);
         var eventPipeSession = client.StartEventPipeSession(providers, false);
-
         return (eventPipeSession, new EventPipeEventSource(eventPipeSession.EventStream));
     }
 }
