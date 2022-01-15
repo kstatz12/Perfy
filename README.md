@@ -13,3 +13,5 @@ dotnet run -p 12345 -t 30
 ```sh
 dotnet run -n procName -t 30
 ```
+
+![Sample Output](screenshot.png)

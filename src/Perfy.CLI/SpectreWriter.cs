@@ -16,18 +16,10 @@ public class SpectreWriter : IWriter
 
     public void Write(Cache input)
     {
-        if(input.GCEvents.Any())
-        {
-            AnsiConsole.Write(new Rule("GC Stats"));
-            AnsiConsole.Write(input.GCEvents.ToTable());
-            input.GCEvents.Clear();
-        }
-        if(input.ContentionEvents.Any())
-        {
-            AnsiConsole.Write(new Rule("Thread Contention Stats"));
-            AnsiConsole.Write(input.ContentionEvents.ToTable());
-            input.ContentionEvents.Clear();
-        }
+        AnsiConsole.Write(new Rule("GC Stats"));
+        AnsiConsole.Write(input.GCEvents.ToTable());
+        AnsiConsole.Write(new Rule("Thread Contention Stats"));
+        AnsiConsole.Write(input.ContentionEvents.ToTable());
     }
 
     public void WriteEnd(Cache data)
@@ -37,9 +29,6 @@ public class SpectreWriter : IWriter
 
     public void WriteStart(Process process)
     {
-        AnsiConsole.Status().Start("Collecting Data...", ctx => {
-            ctx.Status($"Attached to Process {process.Id}|{process.ProcessName}, Collecting Data");
-            Thread.Sleep(this.duration);
-        });
+        Console.WriteLine($"Attached to Process {process.Id}|{process.ProcessName}");
     }
 }
