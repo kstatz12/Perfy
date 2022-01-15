@@ -4,4 +4,12 @@ using Perfy.CLI;
 
 var app = new CommandLineApplication();
 app.InitArgs();
-app.Execute(args);
+
+try
+{
+    app.Execute(args);
+}
+catch(Exception ex)
+{
+    Console.WriteLine(ex.Message);
+}
