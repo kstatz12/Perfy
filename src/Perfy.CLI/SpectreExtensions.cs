@@ -78,4 +78,11 @@ public static class SpectreExtensions
        return table;
     }
 
+    public static IRenderable ToTable(ThreadStats stats)
+    {
+       var table = new Table();
+
+       return table;
+    }
+
 }

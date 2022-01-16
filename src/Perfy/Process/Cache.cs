@@ -80,6 +80,12 @@ public class Cache
     }
 }
 
+public class ThreadStats
+{
+    public int ThreadCount { get; set; }
+    public int ThreadWaits { get; set; }
+}
+
 public class Stats
 {
     public int GcCount { get; set; }

@@ -60,7 +60,6 @@ public class Engine
                     }
                 };
             });
-
         });
 
         dispatcher.Clr.ContentionStop += e => {
@@ -70,13 +69,24 @@ public class Engine
             }
         };
 
-        dispatcher.Clr.ThreadPoolWorkerThreadStop += e => {
+        dispatcher.Clr.ThreadPoolWorkerThreadWait += e => {
             if(e.ProcessID == processId)
             {
-                data.Handle(e);
+                Console.WriteLine($"{e.EventName}|{e.TaskName}");
             }
         };
 
+        dispatcher.Clr.ThreadPoolWorkerThreadStop += e => {
+            if(e.ProcessID == processId)
+            {
+                Console.WriteLine($"{e.EventName}|{e.TaskName}");
+            }
+        };
+
+
+        dispatcher.Clr.All += e => {
+            Console.WriteLine(e.EventName);
+        };
     }
 
     private static (IDisposable session, TraceEventDispatcher dispatcher) InititializeProviders(int processId)
@@ -84,14 +94,11 @@ public class Engine
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
             var traceEventSession = new TraceEventSession($"PerfySession_{Guid.NewGuid()}");
-            traceEventSession.EnableProvider(ClrTraceEventParser.ProviderGuid, TraceEventLevel.Informational, (ulong)ClrTraceEventParser.Keywords.GC);
-            traceEventSession.EnableProvider(ClrTraceEventParser.ProviderGuid, TraceEventLevel.Informational, (ulong)ClrTraceEventParser.Keywords.Contention);
+            traceEventSession.EnableProvider(ClrTraceEventParser.ProviderGuid, TraceEventLevel.Informational, (ulong)ClrTraceEventParser.Keywords.Default);
             return (traceEventSession, traceEventSession.Source);
         }
         var providers = new List<EventPipeProvider>();
-        providers.Add(new EventPipeProvider("Microsoft-Windows-DotNETRuntime", EventLevel.Informational, (long)ClrTraceEventParser.Keywords.GC));
-        providers.Add(new EventPipeProvider("Microsoft-Windows-DotNETRuntime", EventLevel.Informational, (long)ClrTraceEventParser.Keywords.Contention));
-
+        providers.Add(new EventPipeProvider("Microsoft-Windows-DotNETRuntime", EventLevel.Informational, (long)ClrTraceEventParser.Keywords.Default));
         var client = new DiagnosticsClient(processId);
         var eventPipeSession = client.StartEventPipeSession(providers, false);
         return (eventPipeSession, new EventPipeEventSource(eventPipeSession.EventStream));
