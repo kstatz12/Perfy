@@ -16,15 +16,25 @@ public class SpectreWriter : IWriter
 
     public void Write(Cache input)
     {
-        AnsiConsole.Write(new Rule("GC Stats"));
-        AnsiConsole.Write(input.GCEvents.ToTable());
-        AnsiConsole.Write(new Rule("Thread Contention Stats"));
-        AnsiConsole.Write(input.ContentionEvents.ToTable());
+        if(input.GCEventsBuffer.Any())
+        {
+            AnsiConsole.Write(new Rule("GC Stats"));
+            AnsiConsole.Write(input.GCEventsBuffer.ToTable());
+            input.ArchiveGcBuffer();
+        }
+
+        if(input.ContentionEventsBuffer.Any())
+        {
+            AnsiConsole.Write(new Rule("Thread Contention Stats"));
+            AnsiConsole.Write(input.ContentionEventsBuffer.ToTable());
+            input.ArchiveContentionBuffer();
+        }
     }
 
-    public void WriteEnd(Cache data)
+    public void WriteEnd(Cache input)
     {
-        Console.WriteLine("Thanks!");
+        AnsiConsole.Write(new Rule("Post Run Stats"));
+        AnsiConsole.Write(input.GetStats().ToTable());
     }
 
     public void WriteStart(Process process)

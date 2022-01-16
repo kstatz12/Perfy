@@ -35,6 +35,7 @@ public class Engine
         };
 
         Console.CancelKeyPress += (_, _) => {
+            this.writer.WriteEnd(this.data);
             this.session?.Dispose();
         };
 
@@ -59,6 +60,7 @@ public class Engine
                     }
                 };
             });
+
         });
 
         dispatcher.Clr.ContentionStop += e => {
@@ -67,6 +69,14 @@ public class Engine
                 data.Handle(e);
             }
         };
+
+        dispatcher.Clr.ThreadPoolWorkerThreadStop += e => {
+            if(e.ProcessID == processId)
+            {
+                data.Handle(e);
+            }
+        };
+
     }
 
     private static (IDisposable session, TraceEventDispatcher dispatcher) InititializeProviders(int processId)
