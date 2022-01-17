@@ -28,7 +28,7 @@ jobs:
         run: dotnet tool restore
 
       - name: Run Build
-        run: dotnet build
+        run: dotnet build .
 
       - name: Run publish
         run: (cd Perfy.CLI && dotnet pack -c Release -o release)
