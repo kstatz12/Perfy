@@ -5,7 +5,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Descrption>CLI For Monitoring a .NET Process's Performance</Description>
+    <Description>CLI For Monitoring a .NET Process's Performance</Description>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>perfy-cli</ToolCommandName>
     <Authors>Karl Statz</Authors>
