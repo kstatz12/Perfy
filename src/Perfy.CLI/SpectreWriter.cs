@@ -8,7 +8,6 @@ namespace Perfy.CLI;
 public class SpectreWriter : IWriter
 {
     private readonly int duration;
-
     public SpectreWriter(int duration)
     {
         this.duration = duration;
