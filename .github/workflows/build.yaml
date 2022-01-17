@@ -1,0 +1,38 @@
+name: build
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [windows-2019, ubuntu-20.04]
+        dotnet: [6.0.100]
+      fail-fast: false
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: src
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: ${{ matrix.dotnet }}
+
+      - name: Restore tools
+        run: dotnet tool restore
+
+      - name: Run Build
+        run: dotnet build
+
+      - name: Run publish
+        run: (cd Perfy.CLI && dotnet pack -c Release -o release)
+
+      - name: Upload NuGet packages
+        uses: actions/upload-artifact@v2
+        with:
+          name: packages
+          path: src/Perfy.CLI/release/

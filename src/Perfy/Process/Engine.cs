@@ -74,6 +74,13 @@ public class Engine
             }
         };
 
+        dispatcher.Clr.ThreadPoolWorkerThreadStart += e => {
+            if(e.ProcessID == processId)
+            {
+                data.Handle(e);
+            }
+        };
+
         dispatcher.Clr.ThreadPoolWorkerThreadWait += e => {
             if(e.ProcessID == processId)
             {

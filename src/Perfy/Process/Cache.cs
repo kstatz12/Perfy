@@ -92,6 +92,13 @@ public class Cache
         {
             stats.ThreadContentionCount = this.contentionEventsColdStorage.Count;
         }
+
+        if(this.threadPoolColdStorage.Any())
+        {
+            stats.ThreadsCreated = this.threadPoolColdStorage.Where(x => x.EventName == "ThreadPoolWorkerThread/Start").Count();
+            stats.ThreadsStopped = this.threadPoolColdStorage.Where(x => x.EventName == "ThreadPoolWorkerThread/Stop").Count();
+            stats.ThreadWaits = this.threadPoolColdStorage.Where(x => x.EventName == "ThreadPoolWorkerThread/Wait").Count();
+        }
         return stats;
     }
 }
