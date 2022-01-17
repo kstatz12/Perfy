@@ -29,6 +29,12 @@ public class SpectreWriter : IWriter
             AnsiConsole.Write(input.ContentionEventsBuffer.ToTable());
             input.ArchiveContentionBuffer();
         }
+
+        if(input.ThreadPoolBuffer.Any())
+        {
+            AnsiConsole.Write(new Rule("Thread Stats"));
+            AnsiConsole.Write(input.GetIncrementalThreadStats().ToTable());
+        }
     }
 
     public void WriteEnd(Cache input)

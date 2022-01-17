@@ -43,8 +43,16 @@ public static class AppExtensions
                 {
                     throw new Exception("No Process Found");
                 }
+
                 return p;
             });
+
+
+
+            Console.CancelKeyPress += (_, _) => {
+                ev.Stop();
+            };
+
             ev.Start();
         });
     }

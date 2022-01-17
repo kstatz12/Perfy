@@ -46,14 +46,11 @@ public static class SpectreExtensions
     {
         var table = new Table()
             .AddColumn("Name")
-            .AddColumn("Flags")
-            .AddColumn("Duration");
+            .AddColumn("Flags");
         foreach(var c in contentions)
         {
-                table.AddRow(
-                    c.TaskName.FormatForDisplay(x => x.ToString()),
-                    c.ContentionFlags.FormatForDisplay(x => x.ToString()),
-                    c.DurationNs.FormatForDisplay(x => $"{x} Ns"));
+            table.AddRow(c.TaskName.FormatForDisplay(x => x.ToString()),
+                         c.ContentionFlags.FormatForDisplay(x => x.ToString()));
         }
         return table;
     }
@@ -64,24 +61,23 @@ public static class SpectreExtensions
            .AddColumn("GC Count")
            .AddColumn("Average GC Time")
            .AddColumn("Total GC Time")
-           .AddColumn("Thread Contention Count")
-           .AddColumn("Average Contention Time")
-           .AddColumn("Total Contention Time");
+           .AddColumn("Thread Contention Count");
 
        table.AddRow(stats.GcCount.FormatForDisplay(x => x.ToString()),
                     stats.AverageGcTime.FormatForDisplay(x => $"{x} MS"),
                     stats.TotalGCTime.FormatForDisplay(x => $"{x} MS"),
-                    stats.ThreadContentionCount.FormatForDisplay(x => x.ToString()),
-                    stats.AverageContentionTime.FormatForDisplay(x => $"{x} NS"),
-                    stats.TotalContentionTime.FormatForDisplay(x => $"{x} NS"));
-
+                    stats.ThreadContentionCount.FormatForDisplay(x => x.ToString()));
        return table;
     }
 
-    public static IRenderable ToTable(ThreadStats stats)
+    public static IRenderable ToTable(this ThreadStats stats)
     {
-       var table = new Table();
+       var table = new Table()
+           .AddColumn("Thread Count")
+           .AddColumn("Thread Wait");
 
+       table.AddRow(stats.ThreadCount.FormatForDisplay(x => x.ToString()),
+                    stats.ThreadWaits.FormatForDisplay(x => x.ToString()));
        return table;
     }
 

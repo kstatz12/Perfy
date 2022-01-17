@@ -59,6 +59,23 @@ public class Cache
         }
     }
 
+    public void ArchiveThreadPoolBuffer()
+    {
+        if(this.ThreadPoolBuffer.Any())
+        {
+            this.threadPoolColdStorage.AddRange(this.ThreadPoolBuffer);
+            this.ThreadPoolBuffer.Clear();
+        }
+    }
+
+    public ThreadStats GetIncrementalThreadStats()
+    {
+        var stats = new ThreadStats();
+        stats.ThreadCount = this.ThreadPoolBuffer.Where(x => x.EventName == "ThreadPoolWorkerThread/Stop").Count();
+        stats.ThreadWaits = this.ThreadPoolBuffer.Where(x => x.EventName == "ThreadPoolWorkerThread/Wait").Count();
+        return stats;
+    }
+
     public Stats GetStats()
     {
         var stats = new Stats();
@@ -73,8 +90,6 @@ public class Cache
         if(this.contentionEventsColdStorage.Any())
         {
             stats.ThreadContentionCount = this.contentionEventsColdStorage.Count;
-            stats.AverageContentionTime = this.contentionEventsColdStorage.Average(x => x.DurationNs);
-            stats.TotalContentionTime = this.contentionEventsColdStorage.Sum(x => x.DurationNs);
         }
         return stats;
     }

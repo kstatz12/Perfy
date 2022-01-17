@@ -34,9 +34,8 @@ public class Engine
             this.writer.Write(this.data);
         };
 
-        Console.CancelKeyPress += (_, _) => {
-            this.writer.WriteEnd(this.data);
-            this.session?.Dispose();
+        this.process.Exited += (_, _) => {
+            this.Stop();
         };
 
         Timer timer = new Timer(callback: timerCallback, dueTime: 0, state: null, period: sampleTime);
@@ -46,6 +45,12 @@ public class Engine
     {
         this.writer.WriteStart(this.process);
         this.dispatcher.Process();
+    }
+
+    public void Stop()
+    {
+        this.writer.WriteEnd(this.data);
+        this.session?.Dispose();
     }
 
     private static void ConfigureCallbacks(TraceEventDispatcher dispatcher, int processId, Cache data)
@@ -72,20 +77,15 @@ public class Engine
         dispatcher.Clr.ThreadPoolWorkerThreadWait += e => {
             if(e.ProcessID == processId)
             {
-                Console.WriteLine($"{e.EventName}|{e.TaskName}");
+                data.Handle(e);
             }
         };
 
         dispatcher.Clr.ThreadPoolWorkerThreadStop += e => {
             if(e.ProcessID == processId)
             {
-                Console.WriteLine($"{e.EventName}|{e.TaskName}");
+                data.Handle(e);
             }
-        };
-
-
-        dispatcher.Clr.All += e => {
-            Console.WriteLine(e.EventName);
         };
     }
 
