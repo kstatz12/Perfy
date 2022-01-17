@@ -61,22 +61,30 @@ public static class SpectreExtensions
            .AddColumn("GC Count")
            .AddColumn("Average GC Time")
            .AddColumn("Total GC Time")
-           .AddColumn("Thread Contention Count");
+           .AddColumn("Thread Contention Count")
+           .AddColumn("Total Threads Started")
+           .AddColumn("Total Threads Stopped")
+           .AddColumn("Total Thread Waits");
 
        table.AddRow(stats.GcCount.FormatForDisplay(x => x.ToString()),
                     stats.AverageGcTime.FormatForDisplay(x => $"{x} MS"),
                     stats.TotalGCTime.FormatForDisplay(x => $"{x} MS"),
-                    stats.ThreadContentionCount.FormatForDisplay(x => x.ToString()));
+                    stats.ThreadContentionCount.FormatForDisplay(x => x.ToString()),
+                    stats.ThreadsCreated.FormatForDisplay(x => x.ToString()),
+                    stats.ThreadsStopped.FormatForDisplay(x => x.ToString()),
+                    stats.ThreadWaits.FormatForDisplay(x => x.ToString()));
        return table;
     }
 
     public static IRenderable ToTable(this ThreadStats stats)
     {
        var table = new Table()
-           .AddColumn("Thread Count")
+           .AddColumn("Thread Start Count")
+           .AddColumn("Thread Stop Count")
            .AddColumn("Thread Wait");
 
-       table.AddRow(stats.ThreadCount.FormatForDisplay(x => x.ToString()),
+       table.AddRow(stats.ThreadStartCount.FormatForDisplay(x => x.ToString()),
+                    stats.ThreadStopCount.FormatForDisplay(x => x.ToString()),
                     stats.ThreadWaits.FormatForDisplay(x => x.ToString()));
        return table;
     }

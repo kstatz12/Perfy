@@ -34,6 +34,7 @@ public class SpectreWriter : IWriter
         {
             AnsiConsole.Write(new Rule("Thread Stats"));
             AnsiConsole.Write(input.GetIncrementalThreadStats().ToTable());
+            input.ArchiveThreadPoolBuffer();
         }
     }
 

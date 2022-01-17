@@ -71,7 +71,8 @@ public class Cache
     public ThreadStats GetIncrementalThreadStats()
     {
         var stats = new ThreadStats();
-        stats.ThreadCount = this.ThreadPoolBuffer.Where(x => x.EventName == "ThreadPoolWorkerThread/Stop").Count();
+        stats.ThreadStartCount = this.ThreadPoolBuffer.Where(x => x.EventName == "ThreadPoolWorkerThread/Start").Count();
+        stats.ThreadStopCount = this.ThreadPoolBuffer.Where(x => x.EventName == "ThreadPoolWorkerThread/Stop").Count();
         stats.ThreadWaits = this.ThreadPoolBuffer.Where(x => x.EventName == "ThreadPoolWorkerThread/Wait").Count();
         return stats;
     }
@@ -97,7 +98,8 @@ public class Cache
 
 public class ThreadStats
 {
-    public int ThreadCount { get; set; }
+    public int ThreadStartCount { get; set; }
+    public int ThreadStopCount { get; set; }
     public int ThreadWaits { get; set; }
 }
 
@@ -107,6 +109,7 @@ public class Stats
     public double AverageGcTime { get; set; }
     public double TotalGCTime { get; set; }
     public int ThreadContentionCount { get; set; }
-    public double AverageContentionTime { get; set; }
-    public double TotalContentionTime { get; set; }
+    public int ThreadsCreated { get; set; }
+    public int ThreadsStopped { get; set; }
+    public int ThreadWaits { get; set; }
 }
