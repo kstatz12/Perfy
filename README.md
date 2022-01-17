@@ -2,16 +2,29 @@
 
 This is based on the amazing [realmon](https://github.com/Maoni0/realmon)
 
-sample
+## Installation
 
-Run In 30 Second Samples
+Global
+
+```
+dotnet tool install --global perfy-cli --version 1.0.0
+```
+
+local
+
+```
+dotnet new tool-manifest # if you are setting up this repo
+dotnet tool install --local perfy-cli --version 1.0.0
+```
+
+## Examples
 
 ```sh
-dotnet run -p 12345 -t 30
+perfy-cli -p 12345 -t 30
 ```
 
 ```sh
-dotnet run -n procName -t 30
+pefy-cli -n procName -t 30
 ```
 
 ![Sample Output](screenshot.png)
