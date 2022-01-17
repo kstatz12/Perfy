@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30114.105
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perfy.CLI", "Perfy.CLI\Perfy.CLI.csproj", "{581C4973-9419-4512-8A3B-680DBD38EE4A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perfy", "Perfy\Perfy.csproj", "{C5BF4C23-BFC2-4709-AE75-274A60A5F4DF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{581C4973-9419-4512-8A3B-680DBD38EE4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{581C4973-9419-4512-8A3B-680DBD38EE4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{581C4973-9419-4512-8A3B-680DBD38EE4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{581C4973-9419-4512-8A3B-680DBD38EE4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5BF4C23-BFC2-4709-AE75-274A60A5F4DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5BF4C23-BFC2-4709-AE75-274A60A5F4DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5BF4C23-BFC2-4709-AE75-274A60A5F4DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5BF4C23-BFC2-4709-AE75-274A60A5F4DF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
