@@ -1,20 +1,23 @@
+using System.Diagnostics;
 using Microsoft.Diagnostics.Tracing.Analysis.GC;
 using Microsoft.Diagnostics.Tracing.Parsers.Clr;
 
 namespace Perfy.Processes;
 
-public class Cache
+public static class Cache
 {
-    private readonly List<TraceGC> gcColdStorage;
-    private readonly List<ContentionStopTraceData> contentionEventsColdStorage;
-    private readonly List<ThreadPoolWorkerThreadTraceData> threadPoolColdStorage;
+    private static List<TraceGC> gcColdStorage;
+    private static List<ContentionStopTraceData> contentionEventsColdStorage;
+    private static List<ThreadPoolWorkerThreadTraceData> threadPoolColdStorage;
 
-    public List<TraceGC> GCEventsBuffer { get; }
-    public List<ContentionStopTraceData> ContentionEventsBuffer { get; }
-    public List<ThreadPoolWorkerThreadTraceData> ThreadPoolBuffer { get; }
+    public static List<TraceGC> GCEventsBuffer { get; }
+    public static List<ContentionStopTraceData> ContentionEventsBuffer { get; }
+    public static List<ThreadPoolWorkerThreadTraceData> ThreadPoolBuffer { get; }
+
+    public static Process? Process { get; private set; }
 
 
-    public Cache()
+    static Cache()
     {
         GCEventsBuffer = new List<TraceGC>();
         ContentionEventsBuffer = new List<ContentionStopTraceData>();
@@ -26,78 +29,83 @@ public class Cache
         ThreadPoolBuffer = new List<ThreadPoolWorkerThreadTraceData>();
     }
 
-    public void Handle(TraceGC newGc)
+    public static void SetProcess(Process process)
+    {
+        Process = process;
+    }
+
+    public static void Handle(TraceGC newGc)
     {
         GCEventsBuffer.Add(newGc);
     }
 
-    public void Handle(ContentionStopTraceData @event)
+    public static void Handle(ContentionStopTraceData @event)
     {
         ContentionEventsBuffer.Add(@event);
     }
 
-    public void Handle(ThreadPoolWorkerThreadTraceData @event)
+    public static void Handle(ThreadPoolWorkerThreadTraceData @event)
     {
         ThreadPoolBuffer.Add(@event);
     }
 
-    public void ArchiveContentionBuffer()
+    public static void ArchiveContentionBuffer()
     {
-        if(this.ContentionEventsBuffer.Any())
+        if(ContentionEventsBuffer.Any())
         {
-            this.contentionEventsColdStorage.AddRange(this.ContentionEventsBuffer);
-            this.ContentionEventsBuffer.Clear();
+            contentionEventsColdStorage.AddRange(ContentionEventsBuffer);
+            ContentionEventsBuffer.Clear();
         }
     }
 
-    public void ArchiveGcBuffer()
+    public static void ArchiveGcBuffer()
     {
-        if(this.GCEventsBuffer.Any())
+        if(GCEventsBuffer.Any())
         {
-            this.gcColdStorage.AddRange(this.GCEventsBuffer);
-            this.GCEventsBuffer.Clear();
+            gcColdStorage.AddRange(GCEventsBuffer);
+            GCEventsBuffer.Clear();
         }
     }
 
-    public void ArchiveThreadPoolBuffer()
+    public static void ArchiveThreadPoolBuffer()
     {
-        if(this.ThreadPoolBuffer.Any())
+        if(ThreadPoolBuffer.Any())
         {
-            this.threadPoolColdStorage.AddRange(this.ThreadPoolBuffer);
-            this.ThreadPoolBuffer.Clear();
+            threadPoolColdStorage.AddRange(ThreadPoolBuffer);
+            ThreadPoolBuffer.Clear();
         }
     }
 
-    public ThreadStats GetIncrementalThreadStats()
+    public static ThreadStats GetIncrementalThreadStats()
     {
         var stats = new ThreadStats();
-        stats.ThreadStartCount = this.ThreadPoolBuffer.Where(x => x.EventName == "ThreadPoolWorkerThread/Start").Count();
-        stats.ThreadStopCount = this.ThreadPoolBuffer.Where(x => x.EventName == "ThreadPoolWorkerThread/Stop").Count();
-        stats.ThreadWaits = this.ThreadPoolBuffer.Where(x => x.EventName == "ThreadPoolWorkerThread/Wait").Count();
+        stats.ThreadStartCount = ThreadPoolBuffer.Where(x => x.EventName == "ThreadPoolWorkerThread/Start").Count();
+        stats.ThreadStopCount = ThreadPoolBuffer.Where(x => x.EventName == "ThreadPoolWorkerThread/Stop").Count();
+        stats.ThreadWaits = ThreadPoolBuffer.Where(x => x.EventName == "ThreadPoolWorkerThread/Wait").Count();
         return stats;
     }
 
-    public Stats GetStats()
+    public static Stats GetStats()
     {
         var stats = new Stats();
 
-        if(this.gcColdStorage.Any())
+        if(gcColdStorage.Any())
         {
-            stats.GcCount = this.gcColdStorage.Count;
-            stats.AverageGcTime = this.gcColdStorage.Average(x => x.DurationMSec);
-            stats.TotalGCTime = this.gcColdStorage.Sum(x => x.DurationMSec);
+            stats.GcCount = gcColdStorage.Count;
+            stats.AverageGcTime = gcColdStorage.Average(x => x.DurationMSec);
+            stats.TotalGCTime = gcColdStorage.Sum(x => x.DurationMSec);
         }
 
-        if(this.contentionEventsColdStorage.Any())
+        if(contentionEventsColdStorage.Any())
         {
-            stats.ThreadContentionCount = this.contentionEventsColdStorage.Count;
+            stats.ThreadContentionCount = contentionEventsColdStorage.Count;
         }
 
-        if(this.threadPoolColdStorage.Any())
+        if(threadPoolColdStorage.Any())
         {
-            stats.ThreadsCreated = this.threadPoolColdStorage.Where(x => x.EventName == "ThreadPoolWorkerThread/Start").Count();
-            stats.ThreadsStopped = this.threadPoolColdStorage.Where(x => x.EventName == "ThreadPoolWorkerThread/Stop").Count();
-            stats.ThreadWaits = this.threadPoolColdStorage.Where(x => x.EventName == "ThreadPoolWorkerThread/Wait").Count();
+            stats.ThreadsCreated = threadPoolColdStorage.Where(x => x.EventName == "ThreadPoolWorkerThread/Start").Count();
+            stats.ThreadsStopped = threadPoolColdStorage.Where(x => x.EventName == "ThreadPoolWorkerThread/Stop").Count();
+            stats.ThreadWaits = threadPoolColdStorage.Where(x => x.EventName == "ThreadPoolWorkerThread/Wait").Count();
         }
         return stats;
     }
@@ -119,4 +127,5 @@ public class Stats
     public int ThreadsCreated { get; set; }
     public int ThreadsStopped { get; set; }
     public int ThreadWaits { get; set; }
+    public int MaxMemoryUsed { get; set; }
 }

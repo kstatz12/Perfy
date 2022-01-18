@@ -15,23 +15,22 @@ public class Engine
     private readonly Process process;
     private IDisposable session;
     private TraceEventDispatcher dispatcher;
-    private readonly Cache data;
     private readonly IWriter writer;
     private readonly int sampleTime;
 
     public Engine(IWriter writer, int sampleTime, Func<Process> processResolverFn)
     {
         this.process = processResolverFn();
+        Cache.SetProcess(this.process);
         var (session, dispatcher) = InititializeProviders(this.process.Id);
         this.session = session;
         this.dispatcher = dispatcher;
-        this.data = new Cache();
         this.writer = writer;
         this.sampleTime = sampleTime;
-        ConfigureCallbacks(dispatcher, this.process.Id, this.data);
+        ConfigureCallbacks(dispatcher, this.process.Id);
 
         TimerCallback timerCallback = _ => {
-            this.writer.Write(this.data);
+            this.writer.Write();
         };
 
         this.process.Exited += (_, _) => {
@@ -43,17 +42,18 @@ public class Engine
 
     public void Start()
     {
-        this.writer.WriteStart(this.process);
+        this.writer.WriteStart();
         this.dispatcher.Process();
     }
 
     public void Stop()
     {
-        this.writer.WriteEnd(this.data);
+        this.writer.WriteEnd();
         this.session?.Dispose();
+        this.process?.Dispose();
     }
 
-    private static void ConfigureCallbacks(TraceEventDispatcher dispatcher, int processId, Cache data)
+    private static void ConfigureCallbacks(TraceEventDispatcher dispatcher, int processId)
     {
         dispatcher.NeedLoadedDotNetRuntimes();
         dispatcher.AddCallbackOnProcessStart(proc => {
@@ -61,7 +61,7 @@ public class Engine
                 runtime.GCEnd += (p, e) => {
                     if(p.ProcessID == processId)
                     {
-                        data.Handle(e);
+                        Cache.Handle(e);
                     }
                 };
             });
@@ -70,28 +70,28 @@ public class Engine
         dispatcher.Clr.ContentionStop += e => {
             if(e.ProcessID == processId)
             {
-                data.Handle(e);
+                Cache.Handle(e);
             }
         };
 
         dispatcher.Clr.ThreadPoolWorkerThreadStart += e => {
             if(e.ProcessID == processId)
             {
-                data.Handle(e);
+                Cache.Handle(e);
             }
         };
 
         dispatcher.Clr.ThreadPoolWorkerThreadWait += e => {
             if(e.ProcessID == processId)
             {
-                data.Handle(e);
+                Cache.Handle(e);
             }
         };
 
         dispatcher.Clr.ThreadPoolWorkerThreadStop += e => {
             if(e.ProcessID == processId)
             {
-                data.Handle(e);
+                Cache.Handle(e);
             }
         };
     }

@@ -22,7 +22,7 @@ public static class AppExtensions
                ttl = seconds * 1000;
             }
 
-            var ev = new Engine(new SpectreWriter(ttl), ttl, () => {
+            var ev = new Engine(new SpectreWriter(), ttl, () => {
                 Process? p = null;
                 if(processName.HasValue())
                 {

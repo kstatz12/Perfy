@@ -7,44 +7,54 @@ namespace Perfy.CLI;
 
 public class SpectreWriter : IWriter
 {
-    private readonly int duration;
-    public SpectreWriter(int duration)
-    {
-        this.duration = duration;
-    }
 
-    public void Write(Cache input)
+    public void Write()
     {
-        if(input.GCEventsBuffer.Any())
+        if(Cache.GCEventsBuffer.Any())
         {
             AnsiConsole.Write(new Rule("GC Stats"));
-            AnsiConsole.Write(input.GCEventsBuffer.ToTable());
-            input.ArchiveGcBuffer();
+            AnsiConsole.Write(Cache.GCEventsBuffer.ToTable());
+            Cache.ArchiveGcBuffer();
         }
 
-        if(input.ContentionEventsBuffer.Any())
+        if(Cache.ContentionEventsBuffer.Any())
         {
             AnsiConsole.Write(new Rule("Thread Contention Stats"));
-            AnsiConsole.Write(input.ContentionEventsBuffer.ToTable());
-            input.ArchiveContentionBuffer();
+            AnsiConsole.Write(Cache.ContentionEventsBuffer.ToTable());
+            Cache.ArchiveContentionBuffer();
         }
 
-        if(input.ThreadPoolBuffer.Any())
+        if(Cache.ThreadPoolBuffer.Any())
         {
             AnsiConsole.Write(new Rule("Thread Stats"));
-            AnsiConsole.Write(input.GetIncrementalThreadStats().ToTable());
-            input.ArchiveThreadPoolBuffer();
+            AnsiConsole.Write(Cache.GetIncrementalThreadStats().ToTable());
+            Cache.ArchiveThreadPoolBuffer();
+        }
+
+        if(Cache.Process != null)
+        {
+            AnsiConsole.Write(new Rule("Process Stats"));
+            AnsiConsole.Write(Cache.Process.ToTable(false));
         }
     }
 
-    public void WriteEnd(Cache input)
+    public void WriteEnd()
     {
         AnsiConsole.Write(new Rule("Post Run Stats"));
-        AnsiConsole.Write(input.GetStats().ToTable());
+        AnsiConsole.Write(Cache.GetStats().ToTable());
+        if(Cache.Process != null)
+        {
+            AnsiConsole.Write(new Rule("Final Process Stats"));
+            AnsiConsole.Write(Cache.Process.ToTable(true));
+        }
+
     }
 
-    public void WriteStart(Process process)
+    public void WriteStart()
     {
-        Console.WriteLine($"Attached to Process {process.Id}|{process.ProcessName}");
+        if(Cache.Process != null)
+        {
+            Console.WriteLine($"Attached to Process {Cache.Process.Id}|{Cache.Process.ProcessName}");
+        }
     }
 }
