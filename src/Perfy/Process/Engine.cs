@@ -16,9 +16,10 @@ public class Engine
     private IDisposable session;
     private TraceEventDispatcher dispatcher;
     private readonly IWriter writer;
+    private readonly IEventLogger eventLogger;
     private readonly int sampleTime;
 
-    public Engine(IWriter writer, int sampleTime, Func<Process> processResolverFn)
+    public Engine(IWriter writer, IEventLogger eventLogger, int sampleTime, Func<Process> processResolverFn)
     {
         this.process = processResolverFn();
         Cache.SetProcess(this.process);
@@ -27,13 +28,15 @@ public class Engine
         this.dispatcher = dispatcher;
         this.writer = writer;
         this.sampleTime = sampleTime;
-        ConfigureCallbacks(dispatcher, this.process.Id);
+        ConfigureCallbacks(dispatcher, this.process.Id, eventLogger);
 
-        TimerCallback timerCallback = _ => {
+        TimerCallback timerCallback = _ =>
+        {
             this.writer.Write();
         };
 
-        this.process.Exited += (_, _) => {
+        this.process.Exited += (_, _) =>
+        {
             this.Stop();
         };
 
@@ -53,43 +56,54 @@ public class Engine
         this.process?.Dispose();
     }
 
-    private static void ConfigureCallbacks(TraceEventDispatcher dispatcher, int processId)
+    private static void ConfigureCallbacks(TraceEventDispatcher dispatcher, int processId, IEventLogger logger)
     {
         dispatcher.NeedLoadedDotNetRuntimes();
-        dispatcher.AddCallbackOnProcessStart(proc => {
-            proc.AddCallbackOnDotNetRuntimeLoad(runtime => {
-                runtime.GCEnd += (p, e) => {
-                    if(p.ProcessID == processId)
+        dispatcher.AddCallbackOnProcessStart(proc =>
+        {
+            proc.AddCallbackOnDotNetRuntimeLoad(runtime =>
+            {
+                runtime.GCEnd += (p, e) =>
+                {
+                    if (p.ProcessID == processId)
                     {
+                        logger.Log(e, x =>
+                        {
+                            return $"Duration: {e.DurationMSec}\t{e.HeapSizeAfterMB}";
+                        });
                         Cache.Handle(e);
                     }
                 };
             });
         });
 
-        dispatcher.Clr.ContentionStop += e => {
-            if(e.ProcessID == processId)
+        dispatcher.Clr.ContentionStop += e =>
+        {
+            if (e.ProcessID == processId)
             {
                 Cache.Handle(e);
             }
         };
 
-        dispatcher.Clr.ThreadPoolWorkerThreadStart += e => {
-            if(e.ProcessID == processId)
+        dispatcher.Clr.ThreadPoolWorkerThreadStart += e =>
+        {
+            if (e.ProcessID == processId)
             {
                 Cache.Handle(e);
             }
         };
 
-        dispatcher.Clr.ThreadPoolWorkerThreadWait += e => {
-            if(e.ProcessID == processId)
+        dispatcher.Clr.ThreadPoolWorkerThreadWait += e =>
+        {
+            if (e.ProcessID == processId)
             {
                 Cache.Handle(e);
             }
         };
 
-        dispatcher.Clr.ThreadPoolWorkerThreadStop += e => {
-            if(e.ProcessID == processId)
+        dispatcher.Clr.ThreadPoolWorkerThreadStop += e =>
+        {
+            if (e.ProcessID == processId)
             {
                 Cache.Handle(e);
             }

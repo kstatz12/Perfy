@@ -14,32 +14,34 @@ public static class AppExtensions
         var timer = app.Option("-t|--time", "Time in seconds to run the process, defaults to 5 minutes", CommandOptionType.SingleValue);
         app.HelpOption();
 
-        app.OnExecute(() => {
+        app.OnExecute(() =>
+        {
 
             int ttl = FIVE_MINUTES;
-            if(int.TryParse(timer.Value(), out var seconds))
+            if (int.TryParse(timer.Value(), out var seconds))
             {
-               ttl = seconds * 1000;
+                ttl = seconds * 1000;
             }
 
-            var ev = new Engine(new SpectreWriter(), ttl, () => {
+            var ev = new Engine(new SpectreWriter(), new ConsoleEventLogger(), ttl, () =>
+            {
                 Process? p = null;
-                if(processName.HasValue())
+                if (processName.HasValue())
                 {
                     p = Process.GetProcessesByName(processName.Value()).FirstOrDefault();
                 }
-                else if(processId.HasValue())
+                else if (processId.HasValue())
                 {
-                    if(int.TryParse(processId.Value(), out var pid))
+                    if (int.TryParse(processId.Value(), out var pid))
                     {
                         p = Process.GetProcessById(pid);
                     }
                 }
                 else
                 {
-                   throw new Exception("Invalid Parameters");
+                    throw new Exception("Invalid Parameters");
                 }
-                if(p == null)
+                if (p == null)
                 {
                     throw new Exception("No Process Found");
                 }
@@ -49,7 +51,8 @@ public static class AppExtensions
 
 
 
-            Console.CancelKeyPress += (_, _) => {
+            Console.CancelKeyPress += (_, _) =>
+            {
                 ev.Stop();
             };
 
