@@ -18,13 +18,8 @@ public class Engine
     private readonly IWriter writer;
     private readonly int sampleTime;
 
-    public Engine(IWriter writer, IEventLogger eventLogger, int sampleTime, Func<Process> processResolverFn)
+    public Engine(IWriter writer, int sampleTime, Func<Process> processResolverFn)
     {
-        if (eventLogger is null)
-        {
-            throw new ArgumentNullException(nameof(eventLogger));
-        }
-
         if (processResolverFn is null)
         {
             throw new ArgumentNullException(nameof(processResolverFn));
@@ -37,7 +32,7 @@ public class Engine
         this.dispatcher = dispatcher;
         this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
         this.sampleTime = sampleTime;
-        ConfigureCallbacks(dispatcher, this.process.Id, eventLogger);
+        ConfigureCallbacks(dispatcher, this.process.Id);
 
         TimerCallback timerCallback = _ =>
         {
@@ -65,7 +60,7 @@ public class Engine
         this.process?.Dispose();
     }
 
-    private static void ConfigureCallbacks(TraceEventDispatcher dispatcher, int processId, IEventLogger logger)
+    private static void ConfigureCallbacks(TraceEventDispatcher dispatcher, int processId)
     {
         dispatcher.NeedLoadedDotNetRuntimes();
         dispatcher.AddCallbackOnProcessStart(proc =>
@@ -76,10 +71,6 @@ public class Engine
                 {
                     if (p.ProcessID == processId)
                     {
-                        logger.Log(e, x =>
-                        {
-                            return $"Duration: {e.DurationMSec}\t{e.HeapSizeAfterMB}";
-                        });
                         Cache.Handle(e);
                     }
                 };
