@@ -16,17 +16,26 @@ public class Engine
     private IDisposable session;
     private TraceEventDispatcher dispatcher;
     private readonly IWriter writer;
-    private readonly IEventLogger eventLogger;
     private readonly int sampleTime;
 
     public Engine(IWriter writer, IEventLogger eventLogger, int sampleTime, Func<Process> processResolverFn)
     {
+        if (eventLogger is null)
+        {
+            throw new ArgumentNullException(nameof(eventLogger));
+        }
+
+        if (processResolverFn is null)
+        {
+            throw new ArgumentNullException(nameof(processResolverFn));
+        }
+
         this.process = processResolverFn();
         Cache.SetProcess(this.process);
         var (session, dispatcher) = InititializeProviders(this.process.Id);
         this.session = session;
         this.dispatcher = dispatcher;
-        this.writer = writer;
+        this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
         this.sampleTime = sampleTime;
         ConfigureCallbacks(dispatcher, this.process.Id, eventLogger);
 
