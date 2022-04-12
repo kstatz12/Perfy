@@ -7,10 +7,10 @@
     <Nullable>enable</Nullable>
     <Description>CLI For Monitoring a .NET Process's Performance</Description>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>perfy-cli</ToolCommandName>
+    <ToolCommandName>perfy</ToolCommandName>
     <Authors>Karl Statz</Authors>
     <PackageOutputPath>./nupkg</PackageOutputPath>
-    <PackageId>perfy-cli</PackageId>
+    <PackageId>perfy</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>csharp;diagnostics;gc;performance;monitoring</PackageTags>
     <PackageProjectUrl>https://github.com/kstatz12/Perfy</PackageProjectUrl>
