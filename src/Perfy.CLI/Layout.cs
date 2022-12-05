@@ -35,15 +35,15 @@ public class Layout
 
         JitTable = TableFactory.Create(table =>
         {
-            table.AddColumn("MethodName");
-            table.AddColumn("ILSize");
-            table.AddColumn("NativeSize");
-            table.AddColumn("CompileCpuTimeMSec");
-            table.AddColumn("JitHotCodeRequestSize");
-            table.AddColumn("JitRODataRequestSize");
-            table.AddColumn("ModuleILPath");
-            table.AddColumn("ThreadID");
-            table.AddColumn("OptimizationTier");
+            table.AddColumn("Method Name");
+            table.AddColumn("IL Size");
+            table.AddColumn("Native Size");
+            table.AddColumn("Compile Cpu Time");
+            table.AddColumn("Jit Hot CodeRequest Size");
+            table.AddColumn("Jit RO DataRequest Size");
+            table.AddColumn("Module IL Path");
+            table.AddColumn("Thread ID");
+            table.AddColumn("Optimization Tier");
         });
     }
 
