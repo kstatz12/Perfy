@@ -25,6 +25,15 @@ public class EventQueue
         this.queues = new ConcurrentDictionary<Type, IQueue>();
     }
 
+    public void Register<T>()
+    {
+        if(this.queues.ContainsKey(typeof(T)))
+        {
+            return;
+        }
+        this.queues.TryAdd(typeof(T), new Queue<T>());
+    }
+
     public void Enqueue<T>(T @event)
     {
         if(!this.queues.ContainsKey(typeof(T)))
@@ -37,6 +46,7 @@ public class EventQueue
             queue.EventQueue.Enqueue(@event);
         }
     }
+
 
     public T? Dequeue<T>()
     {
@@ -52,6 +62,6 @@ public class EventQueue
             }
             return default(T);
         }
-        throw new QueueNotRegisteredException(typeof(T));
+        return default(T);
     }
 }

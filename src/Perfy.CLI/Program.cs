@@ -2,51 +2,73 @@
 using System.Diagnostics;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Diagnostics.Tracing.Analysis.GC;
+using Microsoft.Diagnostics.Tracing.Analysis.JIT;
 using Perfy;
+using Perfy.CLI;
 using Perfy.Processes;
+using Spectre.Console;
 
-Console.WriteLine("Hello World");
-
-var app = new CommandLineApplication();
-
-app.HelpOption();
-
-var processName = app.Option("-n|--name", "Process Name", CommandOptionType.SingleValue);
-var processId = app.Option("-pid|--processid", "Process Id", CommandOptionType.SingleValue);
-
-app.OnExecuteAsync(async e =>
+internal class Program
 {
-    Process? p = null;
+    private static void Main(string[] args)
+    {
+        var app = new CommandLineApplication();
 
-    if (processName.HasValue())
-    {
-        p = Process.GetProcessesByName(processName.Value()).FirstOrDefault();
-    }
-    else if (processId.HasValue())
-    {
-        if (int.TryParse(processId.Value(), out var pid))
+        app.HelpOption();
+
+        var processName = app.Option("-n|--name", "Process Name", CommandOptionType.SingleValue);
+        var processId = app.Option("-pid|--processid", "Process Id", CommandOptionType.SingleValue);
+
+        app.OnExecuteAsync(async e =>
         {
-            p = Process.GetProcessById(pid);
-        }
+            Process? p = null;
+
+            if (processName.HasValue())
+            {
+                p = Process.GetProcessesByName(processName.Value()).FirstOrDefault();
+            }
+            else if (processId.HasValue())
+            {
+                if (int.TryParse(processId.Value(), out var pid))
+                {
+                    p = Process.GetProcessById(pid);
+                }
+            }
+            else
+            {
+                throw new Exception("Invalid Parameters");
+            }
+            if (p == null)
+            {
+                throw new Exception("No Process Found");
+            }
+
+            var eventQueue = new EventQueue();
+
+            eventQueue.Register<TraceGC>();
+            eventQueue.Register<TraceJittedMethod>();
+
+            var engine = new Engine(p, eventQueue);
+
+            var layout = new Layout();
+
+            var processManager = new ProcessorManager(eventQueue);
+
+            var outputManager = new OutputManager(layout, processManager);
+
+            var displayTable = layout.Create();
+
+            AnsiConsole.Write(displayTable);
+
+            Console.CancelKeyPress += (_, _) =>
+            {
+                processManager.Stop();
+            };
+
+            await processManager.Start();
+        });
+
+        app.Execute(args);
     }
-    else
-    {
-        throw new Exception("Invalid Parameters");
-    }
-    if (p == null)
-    {
-        throw new Exception("No Process Found");
-    }
 
-    var eventQueue = new EventQueue();
-
-    var engine = new Engine(p, eventQueue);
-
-    var processManager = new ProcessorManager(eventQueue);
-
-    processManager.AddProcessor<TraceGC>(async e => {
-       await Task.Yield();
-
-       Console.WriteLine($"{e.DurationMSec}");
-    });
-});
+}

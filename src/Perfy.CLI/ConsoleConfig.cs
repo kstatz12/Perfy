@@ -6,14 +6,12 @@ namespace Perfy.CLI;
 
 public class OutputManager
 {
+    private readonly Layout layout;
     private readonly ProcessorManager processorManager;
-    private Table gcTable;
-    private Table jitTable;
 
-    public OutputManager(Table gcTable, Table jitTable, ProcessorManager processorManager)
+    public OutputManager(Layout layout, ProcessorManager processorManager)
     {
-        this.gcTable = gcTable;
-        this.jitTable = jitTable;
+        this.layout = layout;
         this.processorManager = processorManager;
 
         processorManager.AddProcessor<TraceGC>(async e =>
@@ -22,7 +20,7 @@ public class OutputManager
             await Task.Run(() =>
             {
                 var t = e.HeapStats;
-                this.gcTable.AddRow(e.Number.FormatForDisplay(x => x.ToString()),
+                this.layout.GcTable.AddRow(e.Number.FormatForDisplay(x => x.ToString()),
                                     e.Reason.FormatForDisplay(x => x.ToString()),
                                     e.DurationMSec.FormatForDisplay(x => $"{x} MS"),
                                     e.Generation.FormatForDisplay(x => x.ToString()),
@@ -40,7 +38,7 @@ public class OutputManager
         {
             await Task.Run(() =>
             {
-                this.jitTable.AddRow(e.MethodName,
+                this.layout.JitTable.AddRow(e.MethodName,
                                      e.ILSize.FormatForDisplay(x => $"{x} Bytes"),
                                      e.NativeSize.FormatForDisplay(x => $"{x} Bytes"),
                                      e.CompileCpuTimeMSec.FormatForDisplay(x => $"{x} MSecs"),
@@ -53,37 +51,6 @@ public class OutputManager
 
         });
     }
-
-    private void InitGCTable(Table table)
-    {
-        table.AddColumn("Run");
-        table.AddColumn("Reason");
-        table.AddColumn("Duration");
-        table.AddColumn("Generation");
-        table.AddColumn("Handles");
-        table.AddColumn("Pinned Object Count");
-        table.AddColumn("Total Heap Size");
-        table.AddColumn("Gen 1");
-        table.AddColumn("Gen 2");
-        table.AddColumn("Gen 3");
-        table.AddColumn("Gen 4");
-    }
-
-    private void InitJitTable(Table table)
-    {
-        table.AddColumn("MethodName");
-        table.AddColumn("ILSize");
-        table.AddColumn("NativeSize");
-        table.AddColumn("CompileCpuTimeMSec");
-        table.AddColumn("JitHotCodeRequestSize");
-        table.AddColumn("JitRODataRequestSize");
-        table.AddColumn("ModuleILPath");
-        table.AddColumn("ThreadID");
-        table.AddColumn("OptimizationTier");
-    }
-
-
-
 }
 
 public static class FormatExtensions
