@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perfy.CLI", "Perfy.CLI\Perf
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perfy", "Perfy\Perfy.csproj", "{C5BF4C23-BFC2-4709-AE75-274A60A5F4DF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Perfy.TUI", "Perfy.TUI\Perfy.TUI.csproj", "{5EF1D633-AB40-4090-BA1B-869DEA8B672F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{C5BF4C23-BFC2-4709-AE75-274A60A5F4DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C5BF4C23-BFC2-4709-AE75-274A60A5F4DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C5BF4C23-BFC2-4709-AE75-274A60A5F4DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5EF1D633-AB40-4090-BA1B-869DEA8B672F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EF1D633-AB40-4090-BA1B-869DEA8B672F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EF1D633-AB40-4090-BA1B-869DEA8B672F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EF1D633-AB40-4090-BA1B-869DEA8B672F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
