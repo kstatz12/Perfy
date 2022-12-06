@@ -14,10 +14,13 @@ public static class TableFactory
 
 public class Layout
 {
-    public Table GcTable { get; }
-    public Table JitTable { get; }
-    public Layout()
+    public Table? GcTable { get; private set; }
+    public Table? JitTable { get; private set; }
+
+
+    public Table Create()
     {
+
         GcTable = TableFactory.Create(table =>
         {
             table.AddColumn("Run");
@@ -45,13 +48,12 @@ public class Layout
             table.AddColumn("Thread ID");
             table.AddColumn("Optimization Tier");
         });
+        return TableFactory.Create(table =>
+        {
+            table.AddColumn("GCE vents");
+            table.AddColumn("JIT Events");
+
+            table.AddRow(this.GcTable, this.JitTable);
+        });
     }
-
-    public Table Create() => TableFactory.Create(table =>
-    {
-        table.AddColumn("GC Events");
-        table.AddColumn("JIT Events");
-
-        table.AddRow(this.GcTable, this.JitTable);
-    });
 }

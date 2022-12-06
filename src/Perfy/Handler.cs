@@ -63,7 +63,7 @@ public class ProcessorManager
     public async Task Start()
     {
         this.state.Start();
-        foreach(var p in this.processors)
+        foreach (var p in this.processors)
         {
             await p.Process();
         }

@@ -21,11 +21,12 @@ public class Engine : IDisposable
         this.process = process;
         this.queue = queue;
         (session, dispatcher) = InititializeProviders();
-        if(dispatcher is not null)
+        if (dispatcher is not null)
         {
             ConfigureCallbacks(dispatcher);
         }
-        else {
+        else
+        {
             throw new StartupException("Could Not Initialze TraceEventDispatcher");
         }
     }
@@ -38,17 +39,21 @@ public class Engine : IDisposable
     private void ConfigureCallbacks(TraceEventDispatcher dispatch)
     {
         dispatch.NeedLoadedDotNetRuntimes();
-        dispatch.AddCallbackOnProcessStart(c => {
-            c.AddCallbackOnDotNetRuntimeLoad(r => {
-                r.GCEnd += (p, e) => {
-                    if(p.ProcessID == this.process.Id)
+        dispatch.AddCallbackOnProcessStart(c =>
+        {
+            c.AddCallbackOnDotNetRuntimeLoad(r =>
+            {
+                r.GCEnd += (p, e) =>
+                {
+                    if (p.ProcessID == this.process.Id)
                     {
                         this.queue.Enqueue(e);
                     }
                 };
 
-                r.JITMethodEnd += (p, e) => {
-                    if(p.ProcessID == this.process.Id)
+                r.JITMethodEnd += (p, e) =>
+                {
+                    if (p.ProcessID == this.process.Id)
                     {
                         this.queue.Enqueue(e);
                     }

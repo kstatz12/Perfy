@@ -20,7 +20,7 @@ public class OutputManager
             await Task.Run(() =>
             {
                 var t = e.HeapStats;
-                this.layout.GcTable.AddRow(e.Number.FormatForDisplay(x => x.ToString()),
+                this.layout.GcTable?.AddRow(e.Number.FormatForDisplay(x => x.ToString()),
                                     e.Reason.FormatForDisplay(x => x.ToString()),
                                     e.DurationMSec.FormatForDisplay(x => $"{x} MS"),
                                     e.Generation.FormatForDisplay(x => x.ToString()),
@@ -38,7 +38,7 @@ public class OutputManager
         {
             await Task.Run(() =>
             {
-                this.layout.JitTable.AddRow(e.MethodName,
+                this.layout.JitTable?.AddRow(e.MethodName,
                                      e.ILSize.FormatForDisplay(x => $"{x} Bytes"),
                                      e.NativeSize.FormatForDisplay(x => $"{x} Bytes"),
                                      e.CompileCpuTimeMSec.FormatForDisplay(x => $"{x} MSecs"),

@@ -20,9 +20,10 @@ public class QueueTests
         var queue = new EventQueue();
         queue.Register<A>();
 
-        queue.Enqueue(new A{
+        queue.Enqueue(new A
+        {
             X = 10,
-            Y= 10
+            Y = 10
         });
 
         var result = queue.Dequeue<A>();
