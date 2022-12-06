@@ -15,8 +15,8 @@
     <PackageTags>csharp;diagnostics;gc;performance;monitoring</PackageTags>
     <PackageProjectUrl>https://github.com/kstatz12/Perfy</PackageProjectUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <Version>0.1.1</Version>
-    <PackageVersion>0.1.1</PackageVersion>
+    <Version>0.2.1</Version>
+    <PackageVersion>0.2.1</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>

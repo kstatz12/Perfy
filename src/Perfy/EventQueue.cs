@@ -40,7 +40,10 @@ public class EventQueue
         {
             queue.EventQueue.Enqueue(@event);
         }
-        throw new QueueNotRegisteredException(typeof(T));
+        else
+        {
+            throw new QueueNotRegisteredException(typeof(T));
+        }
     }
 
 

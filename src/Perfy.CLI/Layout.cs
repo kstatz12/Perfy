@@ -49,8 +49,8 @@ public class Layout
 
     public Table Create() => TableFactory.Create(table =>
     {
-        table.AddColumn("GCEvents");
-        table.AddColumn("JITEvents");
+        table.AddColumn("GC Events");
+        table.AddColumn("JIT Events");
 
         table.AddRow(this.GcTable, this.JitTable);
     });
