@@ -48,6 +48,7 @@ public class Layout
             table.AddColumn("Thread ID");
             table.AddColumn("Optimization Tier");
         });
+
         return TableFactory.Create(table =>
         {
             table.AddColumn("GCE vents");
